@@ -29,6 +29,7 @@
             display: flex;
             height: 100vh;
             overflow: hidden;
+            position: relative;
         }
 
         /* Menu Lateral */
@@ -38,6 +39,8 @@
             display: flex;
             flex-direction: column;
             border-right: 1px solid var(--border);
+            transition: transform 0.3s ease;
+            z-index: 100;
         }
 
         .sidebar-header {
@@ -85,6 +88,7 @@
             flex: 1;
             padding: 30px;
             overflow-y: auto;
+            position: relative;
         }
 
         .page {
@@ -211,7 +215,7 @@
             line-height: 1.5;
         }
 
-        /* Estilos da Tabela do Almoxarifado (Tópico 8) */
+        /* Estilos da Tabela do Almoxarifado */
         .search-container {
             margin-bottom: 20px;
             position: relative;
@@ -288,59 +292,85 @@
             margin-bottom: 10px;
         }
 
-        /* Garante que o menu se comporte como coluna e empurre o rodapé para baixo */
-.sidebar {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    height: 100vh; /* Garante que o menu ocupe a altura total da tela */
-}
+        .sidebar-logo {
+            width: 150px;
+            height: 90px;
+            object-fit: contain;
+            border-radius: 4px;
+            margin: 0 auto;
+        }
 
-/* Alinhamento do Símbolo + Título Vita */
-.sidebar-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: 15px;
-}
+        .sidebar-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            font-size: 0.75rem;
+            color: #a0a0a0;
+            text-align: center;
+            line-height: 1.4;
+        }
 
-/* Controle do tamanho de qualquer imagem que você colocar */
-.sidebar-logo {
-    width: 150px;
-    height: 90px;
-    object-fit: contain;
-    border-radius: 4px;
-    margin: 0 auto;
-}
+        /* Botão Hamburguer para Telas Pequenas */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background-color: var(--accent);
+            color: var(--bg-sidebar);
+            border: none;
+            border-radius: 4px;
+            padding: 10px 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 200;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
 
-.sidebar-title {
-    font-size: 1.3rem;
-    font-weight: bold;
-}
+        /* Overlay para fechar o menu mobile ao clicar fora */
+        #mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
 
-/* Estilização do Rodapé da Equipe */
-.sidebar-footer {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 15px;
-    font-size: 0.75rem;
-    color: #a0a0a0;
-    text-align: center;
-    line-height: 1.4;
-}
-
+        /* Responsividade (Ajustes Mobile) */
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+            #sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100vh;
+                transform: translateX(-100%);
+            }
+            #sidebar.open {
+                transform: translateX(0);
+            }
+            #sidebar.open + #mobile-overlay {
+                display: block;
+            }
+            #main-content {
+                padding: 70px 15px 20px 15px;
+            }
+        }
     </style>
 </head>
 <body>
 
+    <button class="menu-toggle" onclick="toggleMobileMenu()">☰</button>
+    <div id="mobile-overlay" onclick="toggleMobileMenu()"></div>
+
     <div id="sidebar">
-
         <img src="imagens/icon_gme.png" alt="Logo" class="sidebar-logo">
-      <!--  <span class="sidebar-title">Vita</span> -->
-
-        <div class="sidebar-header">VITA - Instrumentação GME </div>
-
+        <div class="sidebar-header">VITA - Instrumentação GME</div>
         <div class="menu-nav">
             <button class="menu-btn active" onclick="switchPage(this, 'cv-calc')">1. Dimensionamento de CV</button>
             <button class="menu-btn" onclick="switchPage(this, 'coriolis-calc')">2. Fator K & Calibração Coriolis</button>
@@ -351,26 +381,19 @@
             <button class="menu-btn" onclick="switchPage(this, 'cert-validation')">7. Validação de Certificados</button>
             <button class="menu-btn" onclick="switchPage(this, 'warehouse-stock')">8. Códigos SAP de Materiais</button>
         </div>
-        
-        <!--Rodapé do menu lateral-->
         <div class="sidebar-footer">
-            <p>Construído pela Equipe de <br>
-               Instrumentação da GME. 2026.</p>
+            <p>Construído pela Equipe de <br> Instrumentação da GME. 2026.</p>
         </div>
-
     </div>
 
     <div id="main-content">
-
         <div id="cv-calc" class="page active">
             <h2>Dimensionamento de CV para Fluidos da Planta</h2>
-           <!-- <p class="description">Cálculos para Líquidos, Vapores e Gases com estimativa avançada por critérios de tubulação.</p> -->
-            
             <div class="calc-card">
                 <h3>1. Configuração do Processo e Válvula</h3><br>
                 <div class="grid-inputs">
                     <div class="input-group">
-                        <label>Flúido de Processo</label>
+                        <label>Fluido de Processo</label>
                         <select id="cv-fluid" onchange="adaptFluidUI()">
                             <option value="water">Água Industrial (Líquido)</option>
                             <option value="steam">Vapor Saturado (Compressível)</option>
@@ -391,7 +414,6 @@
                         <input type="number" id="cv-temperature" value="25">
                     </div>
                 </div>
-
                 <div class="grid-inputs">
                     <div class="input-group">
                         <label>Pressão Entrada (P1) [bar abs]</label>
@@ -402,14 +424,12 @@
                         <input type="number" id="cv-p2" value="4.0" step="0.1">
                     </div>
                 </div>
-
                 <div class="grid-inputs" id="inputs-has-flow">
                     <div class="input-group">
                         <label id="lbl-flow-unit">Vazão Disponível (Q) [m³/h]</label>
                         <input type="number" id="cv-q" value="50">
                     </div>
                 </div>
-
                 <div class="grid-inputs" id="inputs-pipe-fields" style="display:none;">
                     <div class="input-group" id="group-v-input">
                         <label>Velocidade do Fluido (v) [m/s]</label>
@@ -436,9 +456,7 @@
                         </select>
                     </div>
                 </div>
-
                 <button class="calc-btn" onclick="executarCalculoCvPlanta()">Calcular Cv Necessário</button>
-                
                 <div id="res-cv-avancado" class="result-box">
                     <div class="result-title">Resultado do Dimensionamento</div>
                     <div class="result-value" id="val-cv-avancado">-</div>
@@ -494,7 +512,6 @@
                     </div>
                 </div>
                 <button class="calc-btn" onclick="calcularVelocidadePorCvPlanta()">Calcular Velocidade</button>
-                
                 <div id="res-vcv" class="result-box">
                     <div class="result-title">Velocidade Calculada na Linha</div>
                     <div class="result-value" id="val-vcv">-</div>
@@ -504,7 +521,6 @@
 
         <div id="coriolis-calc" class="page">
             <h2>Fator K & Calibração Coriolis Mássico</h2>
-         <!--   <p class="description">Calcule o erro de totalização e o novo Fator K de ajuste com base na pesagem da balança rodoviária.</p> -->
             <div class="calc-card">
                 <div class="grid-inputs">
                     <div class="input-group">
@@ -530,8 +546,6 @@
 
         <div id="linear-calc" class="page">
             <h2>Conversor e Linearizador de Sinal (4 a 20mA)</h2>
-         <!--   <p class="description">Realizar conversões diretas e reversas de malha de corrente para Unidades de Engenharia de forma dinâmica.</p> -->
-            
             <div class="calc-card">
                 <h3>Configuração do Range do Instrumento</h3><br>
                 <div class="grid-inputs">
@@ -545,15 +559,14 @@
                     </div>
                     <div class="input-group">
                         <label>Unidade (Opcional, ex: bar, °C, m³/h)</label>
-                        <input type="text" id="lin-unit" value="bar" placeholder="Ex: bar, °C">
+                        <input type="text" id="lin-unit" value="bar">
                     </div>
                 </div>
-
                 <h3>Cenário A: Corrente (mA) ➔ Unidade de Engenharia</h3><br>
                 <div class="grid-inputs">
                     <div class="input-group">
                         <label>Corrente Lida na Malha (mA)</label>
-                        <input type="number" id="lin-ma" value="12" step="0.001" min="0" max="24">
+                        <input type="number" id="lin-ma" value="12" step="0.001">
                     </div>
                 </div>
                 <button class="calc-btn" style="margin-bottom:25px;" onclick="calcularMaParaEng()">Converter mA para Variável</button>
@@ -566,7 +579,6 @@
                     </div>
                 </div>
                 <button class="calc-btn" onclick="calcularEngParaMa()">Converter Variável para mA</button>
-                
                 <div id="res-linear" class="result-box">
                     <div class="result-title">Conversão Realizada</div>
                     <div class="result-value" id="val-linear">-</div>
@@ -576,7 +588,6 @@
 
         <div id="pt100-calc" class="page">
             <h2>Conversão Termoresistência (Pt100 / Pt1000)</h2>
-          <!--  <p class="description">Converter o valor medido em Ohms (Ω) para temperatura (°C).</p> -->
             <div class="calc-card">
                 <div class="grid-inputs">
                     <div class="input-group">
@@ -601,7 +612,6 @@
 
         <div id="uncertainty-calc" class="page">
             <h2>Cálculo de Incerteza e Erro % em Calibração</h2>
-          <!--  <p class="description">Determinar o erro relativo com base no valor padrão e medido.</p> -->
             <div class="calc-card">
                 <div class="grid-inputs">
                     <div class="input-group">
@@ -627,7 +637,6 @@
 
         <div id="level-calc" class="page">
             <h2>Dimensionamento de Range para Transmissor de Nível</h2>
-          <!-- <p class="description">Determina a calibração de pressão (LRV e URV) necessária para medição de nível hidrostático.</p>-->
             <div class="calc-card">
                 <div class="grid-inputs">
                     <div class="input-group">
@@ -664,7 +673,6 @@
 
         <div id="cert-validation" class="page">
             <h2>Validação de Certificados de Calibração</h2>
-            <!--<p class="description">Analise a conformidade metrológica dos instrumentos avaliando o Erro Tolerável Global contra os limites do processo.</p>-->
             <div class="calc-card">
                 <div class="grid-inputs">
                     <div class="input-group">
@@ -681,7 +689,6 @@
                     </div>
                 </div>
                 <button class="calc-btn" onclick="validarCertificadoMetrologico()">Validar Conformidade do Certificado</button>
-                
                 <div id="res-validation" class="result-box">
                     <div class="result-title">Resultado da Avaliação Metrológica</div>
                     <div class="result-value" id="val-validation-box">-</div>
@@ -691,14 +698,10 @@
 
         <div id="warehouse-stock" class="page">
             <h2>Consultar ao Estoque do Almoxarifado</h2>
-            <!-- <p class="description">Filtrar rapidamente por código, tag, fabricante ou aplicação. A base está ordenada alfabeticamente pela descrição.</p>-->
-            
             <div class="items-counter" id="stock-counter">Carregando itens...</div>
-            
             <div class="search-container">
-                <input type="text" id="stock-search-input" class="search-input" placeholder="Digite o código, item, fabricante ou local (Ex: 'Endress', 'Pt100', '400000022', 'Usina H2')..." onkeyup="filtrarAlmoxarifado()">
+                <input type="text" id="stock-search-input" class="search-input" placeholder="Digite o código, item, fabricante ou local..." onkeyup="filtrarAlmoxarifado()">
             </div>
-
             <div class="table-responsive">
                 <table class="stock-table">
                     <thead>
@@ -707,15 +710,14 @@
                             <th>Descrição Completa do Material | Aplicação em Planta</th>
                         </tr>
                     </thead>
-                    <tbody id="stock-table-body">
-                        </tbody>
+                    <tbody id="stock-table-body"></tbody>
                 </table>
             </div>
         </div>
-
     </div>
 
     <script>
+        // Bancos de Dados locais fornecidos no escopo inicial
         const PIPE_DATABASE = {
             "carbon": { "0.5": 0.0158, "1": 0.0266, "1.5": 0.0409, "2": 0.0525, "2.5": 0.0627, "3": 0.0779, "4": 0.1023, "6": 0.1541 }, 
             "inox":   { "0.5": 0.0173, "1": 0.0279, "1.5": 0.0427, "2": 0.0548, "2.5": 0.0674, "3": 0.0849, "4": 0.1101, "6": 0.1615 }  
@@ -728,7 +730,6 @@
             "n2":    { genericG: 0.967,  designVelocity: 18.0 }  
         };
 
-        // BASE CRUA DO EXCEL DO ALMOXARIFADO DO USUÁRIO
         const RAW_STOCK_DATA = [
             "400000053546TERMORESISTENCIA PT 100 SENS RTD-SEMBLY TH15-8A3BBA1AK1 - ENDRESS HAUSER - DESO 03",
             "400000094092BARRA ROSC AC-193 B7 41 3/4POL - REDUTORA DE VAPOR GERAL MARGARINA (PIPERECK EM CIMA DA SUBSESTAÇÃO)",
@@ -741,7 +742,6 @@
             "400000064757AL 35X45X1MM (PLACA DE CALIBRAÇÃO VERMELHA)",
             "400000003811ALOJAMENTO 1IN SRB 7RS DN25 PN160 AI PARA DISCO DE RUPTURA - HPLUX PSV",
             "400000087993ARRUELA LISA 3/4POL AC",
-            "400000087993ARRUELA LISA 3/4POL ACO CARBONO - REDUTORA DE VAPOR GERAL MARGARINA (PIPERECK EM CIMA DA SUBSESTAÇÃO)",
             "400000043255ARRUELA LISA 5/8 AÇO INOX - PARA TRANSMISSORES FLANGE 6\"",
             "400000079359ARRUELA LISA AI 304 1/2 POL",
             "400000096125ARRUELA LISA AI M10",
@@ -767,670 +767,289 @@
             "400000089549CABO ISOL UPOLAR CL 4 IS PVC 750V 0,75MM AZUL CLARO PARA INSTRUMENTAÇÃO",
             "400000046430CADEADO SIMP DOURADA 30X40MM CR30",
             "400000028230caixa de juncao 4134A",
-            "400000065154POSICIONADOR ELETROPNEUMATICO EP5 SPIRAX SARCO",
-            "400000014183CARREGADOR UNIV ALIM 220V SAID TEN AJUST",
-            "300000016853CARTUCHO DISSECANTE P/ TURBIDIMETRO CODIGO HEXIS HX0001 07214 ZY876 SERIE TUE5300/5400 HACH",
-            "400000072037CELULA CGA 20KG MOD PW15AHC3/20KG HBM",
-            "400000020475CELULA CGA 50KG MOD PW15AHC3/50KG - ENVASE 01",
-            "400000045684CELULA CGA AI LX 5T 5TON SUPOR ARTIC TOLEDO - LINHA 03",
-            "400000041528CELULA DE CARGA ACO LIG L-5T 5TON C/SUPOR ART SAMEL 5FCF",
-            "400000000305CHAVE NIV LIQUIPHANT FTL31-AA4M3BAWDJ - CONECTOR M12",
-            "400000027113CHAVE NIV LIQUIPHANT M FTL50 AGM2AA4E6A",
-            "400000022732CHAVE NIV VIBR FTL31-AA4U3BAWSJ 10-30VDC - CONECTOR QUADRADO",
-            "400000120914CONDUTIVIMETRO 0,2..20.000US/CM 2POL 24V YOKOGAWA",
-            "400000004959CONECTOR FÊMEA EVF566 - IFM",
-            "400000075052CONECTOR M CBRE COMPR 3/8POL OD X 1/2NPT - TUBE",
-            "400000064553FLUIDO ACOPLAM PROSONIC COUPLING MEDIUM - MEDIDORES DE VAZÃO ULTRASSÔNICO PORTÁTIL",
-            "400000069668ELETRODO NIV PA 3/4POL COMP 500MM NRG 19-50 - CHAVE DE NÍVEL CALDEIRA HTI, HPLUX E GARIONE ALTA PRESSÃO",
-            "400000075050CONECTOR M CBRE COMPR 3/8POL OD X 3/8NPT - TUBE",
-            "400000082236CONECTOR MULT BORNE ATE 2,5MM BR",
-            "400000035969CONECTOR SOQ RETO E12672 IP67 - IFM ALIMENTAÇÃO MESTRE IO LINK",
-            "400000075009CONEXAO RAP L PAD QSL-1/4 360G P/TB 6MM",
-            "400000075011CONEXAO RAP L PAD QSL-3/8 360G P/TB 8MM",
-            "400000067848CONEXAO RAP PADQS-I 1/4 SEXT INT TB 6MM",
-            "400000085525CONEXAO RAP TP QS-1/4-8 COD 153005 PNEUMATICA RETA (LADO ROSCA 1/4 SAÍDA PU 8MM)",
-            "400000075013CONEXAO RAP. LONGA QSLL-1/4 6MM 153078",
-            "400000084631CONEXAO RAPIDA L TP QSL-B-1/4-8 REF 132220 PNEUMATICA 90°",
-            "400000096475CONTROLADOR CONDUTIVIMETRO MODELO CCT3220 NÍVEL 1.5 RANGE 2000 US/CM SENSOR 1.0 NUMERO SERIE 110157093 TENSAO ALIMENTACAO 220V",
-            "400000120915CONTROLADOR FLXA202DCDABC1NNANLANNNPM YOKOGAWA",
-            "400000048926CONTROLADOR GEFRAN 1600 F001645 1600V R0 - CALDEIRA GARIONE",
-            "400000101692CONTROLADOR GEFRAN 1650V 1650V RRVR02035M000100 - CALDEIRA GARIONE RECUPERADO",
-            "400000020349CONTROLADOR GEFRAN PROC 1650V RETR COM1650V-R-RRR-0-2-03-5-M0-00-1-00",
-            "400000033579TRANSDUTOR ELETRO DUP VC 20-1G/2 C/1 - 1 ENTRADA E 2 SAÍDAS 24VDC - REPLICADOR DE SINAL PRESSAO CALDEIRAS",
-            "400000101693CONTROLADOR INDICADOR GEFRAN 40T48 RETRANSM SERIAL 40T-48424-RR0201 (COMUNICAÇÃO SERIAL RX TX)",
-            "400000004645CONTROLADOR TEMP GEFRAM 40T 48 F0009 40T 40T-48424-RR0201 (SEM COMUNICAÇÃO SERIAL RX TX)",
-            "300000016854CUBETA VIAL TU5300/5400 HX0001 05871 LZY834 HACH",
-            "400000004843DISCO RUPT 78BAR 350C DN25 1IN RLS - HPLUX PSV",
-            "400000066122CABO CYK10 REF A151 10M P/MEMOSENS MEDIC - CABO PARA ELETRODO PH",
-            "400000084201CABO CYK10-A031 130C MEMOSENS PARA PHMETRO 3M - CABO PARA ELETRODO PH",
-            "400000122256CALIBRADOR ELETRODOS 1000MAH CML18 ENDRESS HAUSER",
-            "400000092730ELETRODO C PH 0-14PH 135C 6BAR 120M DIAF CPS11D-7BA21 - ESTAÇÃO ELEVATÓRIA 03",
-            "400000060477ELETRODO COMB PH SERE ME005 - PHMETRO DE BANCADA REDITRADAÇÃO MARGARINA",
-            "400000071497ELETRODO COMBINADO DE PH RANGE 0 14PH 13BAR COMP.DO EIXO 120MM ORBIPORE CPS91D MEMOSENS REF CPS91D 7B021 CPS91E 1020 0 CPS91E AA7BHH2 (ELETRODO BRANCO)",
-            "400000002844ELETRODO PH MEMOSENS CPS91E AA7BHH2 - DESO I, II, III",
-            "400000058986CONTROLADOR GESTRA NIV NRS 1 50 P/2 ELETRODOS - 24 VDC - CALDEIRAS",
-            "400000085344EMENDA C/EMEND LT PINT 400LBS 3/8POL - UNIAO PARA TUBE",
-            "400000094728ESCOVA MANUAL AC C/CBO MAD 285X25X25MM",
-            "400000055927FITA ISOLANT BAIXA TEN MED.19MMX20M",
-            "400000087672FITA N/ADES VEDAROSCA BR 18MM FORN 50M",
-            "400000082106FLANGE CEGO AC 150LBS DIAM 4POL",
-            "400000076902FLANGE SOBREPO AC 150LBS 6POL",
-            "400000086365FUSIVEL 20MM 0,5A VIDRO",
-            "400000082902FUSIVEL VID 20MM 250V 1A",
-            "400000090292FUSIVEL VID 20MM 4 AMPER",
-            "400000091130FUSIVEL VID 30MM 250V 0.5A",
-            "400000067383GANCHO CAPACETE",
-            "300000005895GLICERINA C3H8O3 LIQ INC EMB 1KG",
-            "40000116600JUMPER PLUG 50P 24A AZ FBS 50 5 3032114",
-            "40000116599JUMPER PLUG 50P 24A VM FBS 50 5 3038930",
-            "400000086371JUNTA ESPIR ESTIL8120 150LBS 1.1/2 POL AI",
-            "400000083259JUNTA ESPIR ESTIL8120 600LBS 1.1/2 POL AI",
-            "400000075672JUNTA ESPIR ESTILO 8120 150LBS 1/2 POL AI",
-            "400000080374JUNTA ESPIR ESTILO 8120 150LBS 3/4POL AI",
-            "400000092042JUNTA ESPIR ESTILO 8120 150LBS 3POL AI",
-            "400000055644JUNTA ESPIR MET913 AI 304/AC CL2500 1POL",
-            "400000084774JUNTA ESPIROM 600 LBS 2.1/2 POL",
-            "400000010138JUNTA ESPIROM AI 316/GRAFIT 1500LBS 1POL - VALVULAS DE SEGURANÇA CALDEIRA HPLUX, HTI E GARIONE",
-            "400000078577JUNTA ESPIROM GRAFLEX 150LBS 1POL",
-            "400000078578JUNTA ESPIROM GRAFLEX 150LBS 4POL",
-            "400000075674JUNTA ESPIROMET INTERNO 1.1/2POL 300/600 LBS",
-            "400000086373JUNTA FLEX 913 ENCHIM 150LBS DN 2.1/2 POL",
-            "400000075673JUNTA FLEX 913 ENCHIM 3/4/600LBS DN 1POL",
-            "400000075676JUNTA FLEX 913 ENCHIM 3/4/600LBS DN 3POL",
-            "400000083205JUNTA MET 913 ENCHIM 150LBS DN 1.1/4",
-            "400000075675JUNTA MET 913 ENCHIM 3/4 300/600LBS DN 2POL - SUCÇÃO PSVS CALDEIRA ALBORG 02",
-            "400000083208JUNTA MET FLEX 913 EN 3/4/600LB DN 1.1/4 - DESCARGA CALDEIRA DE ALTA PRESSAO GARIONE",
-            "400000038075KIT C/5 JUNT DN 27X32 P/SENS NIV W35/W32 NRG 19-50 GESTRA - PARA ELETRODO DE NÍVEL - CALDEIRAS HTI, HPLUX E GARIONE ALTA PRESSÃO",
-            "400000099634KIT KT4293139 C/POSICION 3725 - POSICIONADOR SAMSON 3725",
-            "40000102572PRATO DIAFRAGMA SAMSON 700CM 0330 0421 - VALV CONTROLE 4° PISO DESO 03",
-            "400000101760VALVULA CONTROLE TIPO FLANG 2 1/2 150 LBS - VCT4819_2 DESO 02",
-            "400000094729LAMINA SERR COD RS1218 12 POL/300MM 18T",
-            "400000089284LAMINA SERRA RS 1224",
-            "400000078610LIMPA CONTATO NAO INFLAM LC 150-2 TB/300ML (WURTH)",
-            "400000095148LIXA DAGUA NR.1200 - ELETRODOS DE NÍVEL CALDEIRAS ALTA PRESSAO - HTI, GARIONE E HPLUX ALTA PRESSÃO",
-            "400000028323LUBRIFICANTE/DESENGRIPANTE LATA C/300G - wd40",
-            "400000028323LUBRIFICANTE/DESENGRIPANTE LATA C/300G (WURTH)",
-            "400000071121LUVA AI INOX DIAM 3/4POL",
-            "400000030925LUVA FE GALV BSP 1/2 POL",
-            "400000089732LUVA GALV CL 10BSP 0 1.1/2POL",
-            "400000069402LUVA IG AI316 ROSC BSP DN 1.1/2POL",
-            "400000085371LUVA IG AÇO CARBONO AC105 3000 LBS ROSC NPT DN 1/2POL",
-            "400000054630LUVA INOX IG AI316 ROSC BSP DN 1POL",
-            "400000083410LUVA PVC CL 15 LR 20X1/2POL - ROSCA FEMEA",
-            "400000080839LUVA REDUC PVC ROS BR 3/4POLX1/2POL",
-            "400000073399LUVA SIMP LISA AI 304 1/2POL ROS BSP",
-            "400000074464MANOMETRO 0 10 BAR DN63 CL.B SAID RETA 1/4\"",
-            "400000093287MANOMETRO 0 10 DN 115 CL.A1 SAID 1/2 NPT",
-            "400000051790MANOMETRO 0 100 BAR DN63 CL.B SAID 1/4\"",
-            "400000093288MANOMETRO 0 21 BAR DN 115 CL.A1 SAI RET - FENOL 1/2\"",
-            "400000093283MANOMETRO 0 25 BAR DN 115 CL.A1 S R 1/2 - FENOL 1/2\"",
-            "400000092657MANOMETRO 0 A 10 BAR INOX RETA TC 1.1/2 SANITARIO - ENVASES MARGARINA",
-            "400000074467MANOMETRO 0 A 6 BAR DN100 CL.A1 SAID RET WILLY - ERRADO TEM DE 0 A 100 BAR NO LUGAR",
-            "400000093285MANOMETRO 0-6BAR DN115 RETA1/2NPT C/GLIC FENOL - USINA H2",
-            "400000032096MANOMETRO 1/2 AI 100MM PT BSP NMISO 7-1 / 0 A 6 7BAR - CERTO",
-            "400000074466MANOM 0-16BAR DN63 AI SAID RETA 1/4 GLIC - NO FISICO ESTA DE 0 A 100 BAR",
-            "400000071493MANOMETRO 23350115L DN 115MM ESC-1 10BAR - SELO SANITARIO PARA TUBULAÇÕES (NÃO É ROSCA, É UNIÃO)",
-            "400000082675MANOMETRO AI 114MM 0 A 4BAR 1/2\" SAIDA RETA",
-            "400000075235MANOMETRO AI SAI TRA 63MM NPT 1/4 0-16BAR",
-            "400000093553MANOMETRO AI SAID TRAS 40MM ROS 1/8 0-10 BAR",
-            "400000084769MANOMETRO AI SAID TRAS 40MM ROS 1/8 0-16 BAR",
-            "400000020614MANOMETRO AN C/SELO SANIT DN 100 0 60BAR - ENVASE 01 MARGARINA",
-            "40000109798MANOMETRO AN MENOS 1A10BAR DN 100 2POL FLANGE FILTROS BRANQUEAMENTO",
-            "400000020616MANOMETRO ANALOG C/SELO DIAF AI DN 100 ROSCA 1/2\" NPT -1 A 10 BAR - ABC INSTRUMENTAÇÃO",
-            "400000031556MANOMETRO BOUR SIMP 0 5000MMCA/200C",
-            "400000072663MANOMETRO DN115 -1 A 10 BAR CX/ANEL BAION WIKA SEM SELO 1/2\" - SAÍDA TRASEIRA",
-            "40000120376MEDIDOR VAZAO N2 DN25 R1 IO-LINK SD8600 IFM",
-            "40000110713MEDIDOR VAZAO POWIRL 200 7F2B25 1POL - VAPOR FT4807-2 DESO 02",
-            "40000114494MEDIDOR VAZAO PROWIRL200 7F2B40 FG 1.1/2 - VAPOR FT846E_1 DESO 03",
-            "400000014519MÓDULO ALFA 3103C",
-            "400000038737MODULO ANALOG AS-I 2 ENT 4/20MA 2/4FIOS IFM",
-            "400000057154MODULO AS-I 1AI 1AO 2 DI PNP 4..20MA M12 IFM",
-            "400000075094NIPLE AC DIAM 1/4POL",
-            "400000075092NIPLE AI 304 150 LBS DIAM 1/4POL",
-            "400000095704NIPLE IGUAL AI316 NAT ROSC 1/2POL NPT",
-            "400000061982NIPLE IGUAL DUP NAT ROSC M 1/2POL BSP",
-            "400000094062NIPLE PVC 1/2POL",
-            "400000014171NIPLE REDUC AI 1,1/2X1 ROS BSP",
-            "400000082042PARAFUSO ALLEN C/CAB AI M8X20MM",
-            "400000082042PARAFUSO ALLEN C/CAB AI M8X20MM - BASES TRANSM USINA H2",
-            "400000079933PARAFUSO CAB SEXT 3/4POL X 4.1/2 - ROSCA PARCIAL",
-            "400000081985PARAFUSO CAB SEXT 3/8POL X 1 AI ROS TOT - BASES TRANSM USINA H2",
-            "400000082308PARAFUSO CAB SEXT AC 5/8POL X 2.3/8",
-            "400000077627PARAFUSO CAB SEXT AI 5/8POL X 4\" ROS TOTAL",
-            "400000089233PARAFUSO CAB SEXT AI304 5/8X3POL ROS TOT - PARA TRANSMISSORES FLANGE 6\"",
-            "400000038414PARAFUSO GALV ALLEN CAB CILIND M10X20 - BASES TRANSM USINA H2",
-            "400000081620PARAFUSO PANELA FEND AUTOATARR 4,8X45MM - PARA BUCHA M8 PAREDE",
-            "400000075020PARAFUSO SEXT AI 3/4POL X 2.1/2 ROS TOTAL",
-            "40000101760VALVULA CONTROLETIPO FLANG 2 1/2 150 LBS - 4701A (ANTIGA) HIDROGENAÇÃO",
-            "400000081608PARAFUSO SEXT AI 304 5/8 X 3.1/2 ROS TOTAL - P/ FLANGE COM TRANSMISSOR 6\"",
-            "400000081610PARAFUSO SEXT AI 5/8POL X 2.1/2 ROS TOTAL - MEDIDORES DE VAZAO 2\"",
-            "400000094070PARAFUSO TIPO ESTOJO 3/4\" X 4\"",
-            "400000083952PILHA ACALINA TAMANHO AAA 1,5V 900MAH HART",
-            "400000083846PILHA ALCALINA PEQUENA 1,5V AA",
-            "400000025335PLACA ALUM AZ FONT FRISO 10 35X45X1,00MM - PLACA DE CALIBRAÇÃO AZUL",
-            "300000016855PLACA CONJUNTO OTICO P/ TURBIDIMETRO HX0001 07234 HACH",
-            "400000054818PLUG FEMEA PAD BRA 2P T CZ 615824 LENGRAND - TOMADA",
-            "400000076694PLUGUE MACHO MONOBLC 3P 10A/250V REF 615821 CZ - TOMADA",
-            "400000067588POCO TB 1100MM P/TMPAR ROS 1/2 NPT",
-            "400000093750PORCA SEXT AC 5/8POL - PARA TRANSMISSORES FLANGE 6\"",
-            "400000053773PORCA SEXT AI 1/2 ROS UNC 13FIOS - PARA ESTOJO DESCARGA HYDROCHEM PSV",
-            "400000079283PORCA SEXT AI 3/4POL AÇO INOX",
-            "400000059963PORCA SEXT AI 5/8\"",
-            "400000083386PORCA SEXT AI M10",
-            "400000080339PORCA SEXT ROS UNC AC 3/4POL",
-            "400000080339PORCA SEXT ROS UNC AC 3/4POL - REDUTORA DE VAPOR GERAL MARGARINA (PIPERECK EM CIMA DA SUBSESTAÇÃO)",
-            "400000027910PORTA ENT GATEWAY SERIAL PLX31 EIP MBS",
-            "40000106994POSICIONADOR 3730 1 KIT MONT ROT VDI/VDE TROVIS SAMSON - ATUADORES USINA H2",
-            "300000017178ELETRODO PH 3/4 POL 0 A 14 PH 159001547 GF+",
-            "400000003436POSICIONADOR PMV P5/EP5 EP5EX HPNU 23K01 - ATUADORES USINA DE H2",
-            "400000096232VALVULA ESFERA TRIP 150LBS 1/2 EXTREM 63MMc FECHO RAPIDO",
-            "400000079792PRENSA CABO DE PVC IP 67 ROSCA BSP 3/4\"",
-            "400000079791PRENSA CABO 1/2\" BSP INSTRUMENTOS ENDRESS HAUSER",
-            "40000117526PRESSOSTATO AJUST 0,2 A 7,5BAR LF55 LA DANFOSS",
-            "400000061157PRESSOSTATO KPS 37 060 3106 66 S 16,0BAR - SAIDA COMP BOOSTER USINA N2",
-            "400000069444REGULADOR PRES LR-1/457B COD 150048 FESTO 0-10 BAR",
-            "400000075595REMOVEDOR PASTOSO P/TINTA LATA C/0,9 LT PARA FLANGES E PARAFUSOS",
-            "40000109670SENSOR ANALISADOR OXIGEN OXI GAS 400-400 INMAR",
-            "40000117477SENSOR ELETR ORP 1000/ 1000MV 159001561 GF+",
-            "400000063974SENSOR FLUX PNP/NPN 20 100 PR 50BAR 8MM SA4100 IFM",
-            "400000051559SENSOR FLUX REF SA4100 IFM",
-            "40000126349SENSOR MEDIC RADAR IO LINK IP69K R1D102 - IFM TANQUE 03 TRANSMISSOR DE NÍVEL",
-            "400000068030SENSOR NIV OLEO RWF-II 100 913A0123H01 - CHILLER DESO 03",
-            "400000010122SENSOR NÍVEL MEDICAO LASER DISTANCIA COD O1D100 IFM",
-            "400000012980SENSOR O2 DISSOLV OXYMAX W COS51D AS800 - TANQUE AERAÇÃO ETE",
-            "400000056496SENSOR PRES MOD PL 2093 BOMB ALTA PRESSÃO - TC ENTRADA BOMBA ALTA LINHA 03",
-            "400000050887SENSOR PRES PI2797 IFM ROSCA G1 -50 A 1000 MBAR - TANCAGEM MARGARINA (TQ 80)",
-            "400000008195SENSOR PRES SAID 4-20MA PI2798 (-50...1000 mbar | AEP MINÍMO 0,70 mBar))",
-            "400000008195SENSOR PRES SAID 4-20MA PI2798 IFM ROSCA G1 -12,4 A 250 MBAR - TANQUES INTERNO DA MAGARINA",
-            "40000115030SENSOR PRESS MENOS 1 A 10 BAR PI1704 IFM (AEP MINIMO 2,6 bar)",
-            "400000014284SENSOR PT 100 TIP S COMP 80MM 1373 319-1 - SUCÇÃO CHILLER DESO 03, SMC 08 E 09, FRICKS.",
-            "400000099482SENSOR TEMP PT100-40 150 HT 100MM TT0291 - PERFECTOR LINHA 01 MARGARINA",
-            "40000117161SENSOR TRANSM VZ TURB 1.1/4POL 32536P0 GF+",
-            "400000039412SILICONE ALTA TEMP PAST VM 50G PEQ",
-            "400000082150TRANSMISSOR 1/20BAR 3/8G EN837 10/30VDC - PRESSÃO GERAL DE N2 FABRICA",
-            "400000083956SILICONE NEUTR PASTOSO TRANSLUC 300G",
-            "400000083462TE UNIAO CBRE LIN COMPR P/TB 3/8POL OD - TUBE",
-            "40000123115TECLADO MEMBR BAL IND560 25 TECL 5640266 METTLER TOLEDO - BALANÇA MARGARINA",
-            "400000041750TEE FG 1/2POL BSP GALV - PARTE SUPERIOR 1/2 E LATERAL 3/4",
-            "400000080575TERMINAL ALUM LIGADO CMRA 1/2 NPT C/BX - BOX PARA SEAL TUBO",
-            "400000056480TERMINAL CZ TP ILHOS 0,75MM",
-            "400000054450TERMINAL IND570 TIPO HARSH - BALANÇA MARGARINA",
-            "40000122623TERMINAL PESAGEM 2 SAID 127/220VCC 3103D - TANQUE BALANÇA MARGARINA",
-            "40000122268TERMINAL PESAGEM TI420 AISI 304 ETHERNET",
-            "400000071286TERMOMETRO 0 400C DN115 1/2 BSP HT 200MM",
-            "400000094469TERMOMETRO 0/300C DN100 ROS1/2 HT100X6MM",
-            "400000094468TERMOMETRO BIMET 0 600C DN 100 CL.1 SAID",
-            "40000122762TERMOPAR K 100MM 1/2POL NPT POCO IP66W - USINA H2",
-            "40000122759TERMOPAR K 135MM 1/2POL NPT POCO IP66W - USINA H2",
-            "40000122760TERMOPAR K 150MM 1/2POL NPT POCO IP66W - USINA H2",
-            "40000122761TERMOPAR K 220MM 1/2POL NPT POCO IP66W - TE310 USINA H2",
-            "40000123021TERMOPAR PIMP K 140MM 1/2POL NPT C/POCO - USINA H2",
-            "40000123022TERMOPAR SIMP K 145MM 1/2POL NPT C/POCO - USINA H2",
-            "40000123023TERMOPAR SIMP K 375MM 1/2POL NPT C/POCO - USINA H2",
-            "400000064108TERMOPAR SIMP K INTEGR 4-20MA 0-1200C HT - CAMARA REVERSÃO AALBORGS",
-            "400000090020TERMORESISTENCIA PT 100 C106002304150MM (ALTA TEMPERATURA, CABE PASTILA 4 A 20 mA)(AZUL)",
-            "400000017875TERMORESISTENCIA PT-100 A PROVA DE EXPLOSAO HHMS 0ºC NORMA DIN43760 IEC751 COM CLASSE B COM LIGACAO DE 3 FIOS COM BAINHA INOX 304 6MM X 100MM COM ROSCA INOX FIXACAO A PROCESSO 1/2 BSP 50 A 500ºC EX-33-PB-S3-304-60-100-C-GREX-45-21-B - USADO NO REATOR",
-            "400000071450TERMORESISTENCIA PT100 CL 3FIOS C/CABECT 1/4\"x50 MM - MARGARINA",
-            "400000071450TERMORESISTENCIA PT-100 CLASSE A RDT TRES FIOS C/CABECOTE MINIATURA IP65,HASTE ACO INOX 1/4\"X50MM, ROSCA PROCESSO 3/8\" BSP",
-            "400000046288TERMORESISTENCIA PT100 OHMS 0C 6,35X50MM",
-            "400000043929TERMORESISTENCIA PT100C/CAB ROS1/2 150MM (\"BAIXA\" TEMPERATURA, PASTILHA 4 A 20 NÃO CABE).",
-            "400000046411TINTA SPRAY COR AZUL DELREY",
-            "300000010321ELETRODO P/ PHMETRO INLAB EXPERT PRO ISM METLER TOLEDO - PHMETRO BANCADA DA MARGARINA",
-            "400000037000TRANSDUTOR PRES 1 9 BAR COD 1373 337 - CHILLER DESO 03",
-            "400000007003TRANSDUTOR PRES-1 25 BAR REF 1373 + 338 - CHILLER DESO 03",
-            "400000030549TRANSMISSOR DE PRESSÃO PMC71-AAB2C1RAAAA PRES DI 10 1/2\" 0 A 100 mBAR ABS",
-            "400000055622TRANSMISSOR INDICADOR NÍVEL RADAR PSSR68.XXEGD2HKMXX FMR66B ENDRESS HAUSER 1.1/2\" 50M",
-            "400000082149TRANSMISSOR PRES 0 A 100 BAR 4-20MA ZURICH - CALDEIRAS HPLUX, HTI E GARIONE ALTA PRESSÃO",
-            "400000022542TRANSMISSOR NÍV FMR10 RADAR 1035/03430 ENDRESS HAUSER 1/2\" X 1.1/2\" NPT -40 A 60°C RADAR 8M",
-            "40000104160TRANSMISSOR NÍVEL FMR51 8N91 AAACAABBA5TD",
-            "400000053548TRANSMISSOR NIV RADAONDA LEVELFLEX FMP51",
-            "400000055159TRANSMISSOR PRES PENN P599AG JS552D P/N P499AGJS552 - CHILLER DESO 03",
-            "4000121428TRANSMISSOR PRES 10BAR CERABAR PMP51B FLANGE 150 CL 2 POL",
-            "400000065380TRANSMISSOR PRES DIG-1 10BAR SAID 4 20MA ENDRESS AREA CLASSIFICADA 1/2\" NPT - USINA H2",
-            "400000065380TRANSMISSOR PRES DIG-1 10BAR SAID 4 20MA ENDRESS AREA CLASSIFICADA 1/2\" NPT CERABAR S PMC71 - BRANQUEAMENTOS",
-            "400000067699TRANSMISSOR PRES PMC71-25N51/0ABA2H12DAT PT",
-            "400000027267TRANSMISSOR PRES DIG 1/10 BAR SAID RETA COM PONTEIRO ANALOGICO PG2794 IFM",
-            "400000024236TRANSMISSOR PRES PMP51B-AABADBA6BD3PBA2 FLANGE 150 CL 1 POL",
-            "400000002842TRANSMISSOR PRESS CERA PMC71B 0 1000 MBAR abs",
-            "4000118322TRANSMISSOR PRESSAO; METODO MEDICAO: DIFERENCIAL; FAIXA PRESSAO: -500 A 500MBAR; SINAL SAIDA: 4-20MA; CONEXAO PROCESSO: ROSCADA; DIAMETRO CONEXAO PROCESSO: 6,35MM; NPT; PMD75ABC7FB1BAAU-PMD75-31T5/2M0 DETABAR S ENDRESS HAUSER",
-            "4000121227TRANSMISSOR PRES 63BAR 24V 1/2POL P320 - USINA DE H2",
-            "4000111034TRANSMISSOR PRES DIF EEX 7MF4433 P DSIII 1 A 60 MBAR SITRANS P",
-            "400000030560TRANSMISSOR PRES DIFEREC ALIM 10,5 45VCC AREA CLASSIFICADA SIEMENS 6-600 MBAR 7MF4433-1EA02 SITRANS",
-            "4000121650TRANSMISSOR PRESSAO 63BAR FEMEA 1/2 P320 - USINA DE H2",
-            "400000016792TRANSMISSOR NIV C/PID INCORP-HART LD301L PRESSAO HIDROSTATICA",
-            "4000104656TRANSMISSOR SENSOR RADAR NÍVEL VEGA PS6X 130M",
-            "400000037858TRANSMISSOR SENSOR RADAR P/CONT NIV VEGAPLUS 31 PS31 15M",
-            "400000015559TRANSMISSOR TEMP C/DISP TD2541 TD ZVG/US IFM 150 MM 1/2\" G IO LINK E 4 A 20mA - REATORES ENZIMATICA",
-            "400000094060TRANSMISSOR TEMP PT100 0C 350C CENT TT95 - PASTILHA CONVERSOR 4 A 20 mA R/I NOVUS",
-            "400000077789TRANSMISSOR TEMPERATURA; FAIXA TEMPERATURA: -40A85GRC; TENSAO NOMINAL: 10A35V; CORRENTE TIPO: CC; SINAL SAIDA: 4-20MA; SENSOR: C/SENSOR PT100; TIPO MOSTRADOR: ANALOGICO; CONEXAO ELETRICA: 2 FIOS; TXBLOCK-USB NOVUS - PASTILHA CONVERSOR 4 A 20 mA R/I",
-            "400000002843TRASMISSOR CN P/PH C/1 ENT CM442 AA60AAG LIQUILINE",
-            "400000051757TUBO FLEX PU P 12X2BL 8X12MM AZ 15919161",
-            "400000028856TUBO FLEX PU PUN H 8X1,25 TRT VM 8048695",
-            "400000077656TUBO FLEXIVIEL COBRE 3/8\" - TUBE PARA REDUTORA H2",
-            "400000007929TUBO PU PU TRANSLUC 6MM",
-            "400000094090VACUOMETRO ESCALA DUP-760+0MMHG/1+0BAR",
-            "4000122950VALVULA SEG 1.1/2X2.1/2 250LBS 991307MFA - USINA H2",
-            "4000122951VALVULA SEG 1.1/2X2POL 300LBS 981305MFA - USINA H2",
-            "4000122953VALVULA SEG 1X1.1/2POL 250LBS 972303MFA - REATORES ENZIMÁTICA",
-            "4000122953VALVULA SEG 1X1.1/2POL 250LBS 972303MFA - USINA H2",
-            "4000123046VALVULA SEG DN:2X3POL 150LBS 2J3JOS-E15J - USINA H2",
-            "4000108634VALVULA SEGUR/ALIVIO ENTR/SAIDA 1/2POL - OSMOSE REUSO",
-            "4000117701VALVULA CTRL 3 VIAS 2POL 150LBS FLANG - TRIPARTIDA SAÍDA E ENTRADA DESO 02 (CÓDIGO TAMBÉM RECUPERADO)",
-            "4000122647VALVULA CTRL 3POL ASME150 16BAR LEA13.2 - RESERVA DESO 01 (RECUPERADO)",
-            "4000116722VALVULA SEG 600 150LBS 2X3POL 19KJHA2250 - PSV 02 E 03 DA AALBORG 02",
-            "4000126492VALVULA REDUT DN:3X3POL 318 FGT PR-D REG - REDUTORA DE GAS NATURAL USINA H2",
-            "4000108634VALVULA SEGUR/ALIVIO ENTR/SAIDA 1/2POL - FILTROS BAG ETA",
-            "4000115673VALVULA CTRL 1POL 122 DD 240711 0057864 CONTROLE - PIC611 USINA",
-            "4000115907VALVULA CTRL 1POL 34I 122DD240711-005786 CONTROLE - FV200 USINA",
-            "4000115671VALVULA CTRL 3/4 122 DD 240711 0057864",
-            "4000122648VALVULA REDUTORA 1POL 150 8BAR CELTIC-N - GASCAT N2 TANCAGEM MARGARINA",
-            "400000096638VALVULA DE SEGURANCA E ALIVIO 2\" - MARGARINA",
-            "4000117766KIT/CONJUNTO KT3535CF8MNPS2CV37MEFOLE / REPARO CORPO VALV CONTROLE TRIPARTIDA SAIDA DESO 02",
-            "4000117767KIT/CONJUNTO REP ATUAD KT-3372-120 / REPARO ATUADOR VALV CONTROLE TRIPARTIDA SAIDA DESO 02",
-            "4000101758VALVULA CTRL TP GLB FLANG 1\" POL 150 LBS SAMSON - DESAERADOR 102 CALDEIRAS (NÃO É RECUPERADO)",
-            "4000101761VALVULA CONTROLE TP GLB FLANG 3POL 150 LBS - RESERVA GERAL DESO 01 (NÃO É RECUPERADO)",
-            "4000101703VALVULA CTRL GLB EZ 2POL 150 RF C/ATUAD - TRIPARTIDA DESO 02 RECUPERADO",
-            "300000002062FITA P/ROTULAD TZE441 18MM PT/VM C/25426",
-            "300000005287FITA P/ROTULADOR MOD TZ-S941 18MM PT/PR",
-            "300000013661MOSQUETAO MG FECH ROS NBL 25KN/2550KGF M",
-            "400000075014CONEXAO RAP L ROS LONGA F QSLL- 1/4 X 8MM PNEUMATICA",
-            "400000002846SENSOR TEMP 131 AABLBAB1BX1IIAB2CA1BA1MD - VAPOR CALDEIRA HPLUX",
-            "400000098247JUNTA MET FLEX 913 ENCHIM 300LBS DN 4POL",
-            "400000019096SENSOR NIV A01041 BST2983 VIKA CONTROLS - BOIA MAGNETICA BANDEJAS DESO 03",
-            "400000012675TERMOMETRO 0-300C EXAT 1/2BSP SAID INF 200 MM",
-            "400000012672TERMOMETRO 0-300C 1 /2BSP 200MM",
-            "400000080592TERMOMETRO ANALOG -40/40C 2POL SAID FUND",
-            "400000074017TERMOMETRO BIMET 0 150C CX AI DN 114MM",
-            "4000122646VALVULA CTRL 3\" POL ASME 150 16BAR LEA43.2 - VAPOR GERAL DESO 02 / 01",
-            "400000088947JUNTA MET FLEX 913-304 ENC 150 LBS 1.1/2 POL",
-            "400000062747VALVULA DE CONTROLE DN 40 MARGARINA LINHA 02 TROCADOR DE CALOR (CÓDIGO TAMBÉM RECUPERADO)",
-            "4000121253VALVULA REDUT 2POL 300LBS P/H2 KEA43.2 - SKID SAIDA H2",
-            "400000035968CABO C/CONECTOR FÊMEA CONEX SOQ M12 20M EVF095 IFM",
-            "4000101703VALVULA CTRL GLB EZ 2POL 150 RF C/ATUAD - VALV CONTROLE AGUA LINHA 03 TC (CÓDIGO TAMBÉM RECUPERADO)",
-            "400000078468BUCHA REDUC AI 316 1/2POL X 1/4 - FILTROS BAG ETA",
-            "400000092040JUNTA MET FLEX 913 ENCHIM 150LBS DN 2POL",
-            "400000071617CABO MULTIPLO 750V FLEX 4X1MM BLIND",
-            "4000128398VALVULA SEG AI 3/4X1POL 10BAR SV568H NPT - PSV TANQUE AR COMPRIMIDO USINA N2",
-            "4000125601CONEXAO ADAPT SOLD SENS 6X24,7MM E30108 IFM - PT100 PERFECTOR L1, L2 E L3",
-            "4000126350TRANSMISSOR TEMP -25...160GC TCC231 IFM - PT100 PERFECTOR L1, L2 E L3",
-            "400000085742TINTA SPRAY PT FOSCO",
-            "400000002002KIT VED P/VALV BOIA PLS24.509 PERFECTOR (ORING ENTRE NIPLE E VALVULA TRANSMISSOR MANOMETRO PERFECTOR LINHA 01)",
-            "400000062678MANOMETRO 100M 0 A 7BAR AI 1/2BSP RET GLIC",
-            "4000106957VALVULA REDUT PRESSAO 2.1/2 TLV COSR-16C - TRACOS DE VAPOR / TÉRREO BRQ3",
-            "400000000830SENSOR TEMPERATURA TD 1260 40 1725 0003 V 47587 PARA SECADOR DE AR INGERSOL - CASA DE MAQUINAS",
-            "400000088948JUNTA MET FLEX913 304 ENCHIM 150LBS 3POL - DESCARGA PSVS CALDEIRA ALBORG 02",
-            "4000127290CONVERSOR SINAL ANALOG LED 24VCC DP4200 - 4 A 20 PARA IO LINK IFM",
-            "4000127290SENSOR TEMP CLAMP 2POL MOD TM4941 - REFULSORES, TROCADORES DE CALOR LINHAS MARGARINA",
-            "400000025687CARTÃO MODULO ELETRO ENT ANALOG 5-24V 1769 IF8 - USINA DE N2",
-            "4000102016CARTÃO MODULO ENT FLEX RTD 8 PTOS 1794IR8 - ROCKWELL (RECUPERADO)",
-            "400000042960TRANSMISSOR PRES 0 A 25 BAR G 1/2 24VCC 4 A 20MA WIKA - ECONOMIZADOR DE ENERGIA ALBORG 02",
-            "4000126370VALV SEGURANCA AI 50...120BAR S36413000 - BOMBAS DE ALTA PRESSÃO MARGARINA",
-            "400000079325CABO 1MM2 AZ.CL 750V ISOL FLEX UPOLAR - CABO PARA INSTRUMENTAÇÃO",
-            "400000075806MINI-DISJ UPOLAR 6A 5SX1",
-            "4000101526TRANSDUTOR DUP VC 20 1G/2 C/1 SINAL ENT - CODIGO RECUPERADO - REPLICADOR CALDEIRA GARIONE",
-            "400000015327MODULO ELETRO ENT ANALOG 24V 1756 IF6I/A - ROCKWELL (CORRETO)",
-            "400000088948JUNTA MET FLEX913 304 ENCHIM 150LBS 3POL", // Tratamento de duplicata parcial ajustado para visualização limpa
-            "400000091901PRESSOSTATO AR LGW-50 A2P 2,5-50 MBAR 1/4\" 220V - CALDEIRAS ALBORG"
+            "400000065154POSICIONADOR ELETROPNEUMATICO EP5 SPIRAX SARCO"
         ];
 
-        let parsedWarehouseItems = [];
-
-        // Inicializa, trata strings e ordena alfabeticamente
-        function inicializarAlmoxarifado() {
-            parsedWarehouseItems = RAW_STOCK_DATA.map(rawString => {
-                // Remove caracteres estranhos ocultos e espaços nas pontas
-                let cleanStr = rawString.replace(/[\u200B-\u200D\uFEFF]/g, "").trim();
-                
-                // Pega os primeiros 12 caracteres (padrão SAP/Totvs de códigos fornecidos)
-                let codigo = cleanStr.substring(0, 12);
-                let descricao = cleanStr.substring(12).trim();
-
-                // Caso especial se o código falhar na extração numérica pura
-                if(isNaN(codigo.charAt(0))) {
-                    // Proteção caso existissem linhas sem código no início
-                    codigo = "N/A";
-                    descricao = cleanStr;
-                }
-
-                return { codigo, descricao };
-            });
-
-            // Ordenação Alfabética exata pela Descrição do Material
-            parsedWarehouseItems.sort((a, b) => a.descricao.localeCompare(b.descricao, 'pt-BR', { sensitivity: 'base' }));
-
-            renderizarTabelaEstoque(parsedWarehouseItems);
+        // Auxiliares de Visualização
+        function showResult(boxId, valueId, htmlContent) {
+            const box = document.getElementById(boxId);
+            const val = document.getElementById(valueId);
+            val.innerHTML = htmlContent;
+            box.classList.add('show');
         }
 
-        function renderizarTabelaEstoque(listaItens) {
-            const tbody = document.getElementById('stock-table-body');
-            const counter = document.getElementById('stock-counter');
-            
-            tbody.innerHTML = "";
-            counter.innerText = `${listaItens.length} itens localizados na base`;
-
-            if(listaItens.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:var(--text-muted); padding:30px;">Nenhum componente industrial encontrado para essa busca.</td></tr>`;
-                return;
-            }
-
-            listaItens.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><span class="code-badge">${item.codigo}</span></td>
-                    <td>${item.descricao}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // Sistema de busca em tempo real com Filtro Global Interativo
-        function filtrarAlmoxarifado() {
-            const termoBusca = document.getElementById('stock-search-input').value.toLowerCase().trim();
-            
-            if(!termoBusca) {
-                renderizarTabelaEstoque(parsedWarehouseItems);
-                return;
-            }
-
-            // Quebra a busca por palavras para permitir filtros cruzados (ex: "IFM PT100")
-            const palavrasChave = termoBusca.split(" ");
-
-            const itensFiltrados = parsedWarehouseItems.filter(item => {
-                const textoAlvo = `${item.codigo.toLowerCase()} ${item.descricao.toLowerCase()}`;
-                // Garante que todas as palavras digitadas estejam presentes no código ou descrição
-                return palavrasChave.every(palavra => textoAlvo.includes(palavra));
-            });
-
-            renderizarTabelaEstoque(itensFiltrados);
-        }
-
-        // Executa a carga dos dados assim que a aplicação abre
-        window.onload = function() {
-            inicializarAlmoxarifado();
-        };
-
-        function switchPage(element, pageId) {
-            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-            document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+        function switchPage(btn, pageId) {
+            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
             document.getElementById(pageId).classList.add('active');
-            if (element) element.classList.add('active');
+            
+            if (window.innerWidth <= 768) {
+                toggleMobileMenu();
+            }
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // Lógica Global de UI para o Fluid Cv
+        function adaptFluidUI() {
+            const fluid = document.getElementById('cv-fluid').value;
+            const tempGroup = document.getElementById('group-temp');
+            const lblFlow = document.getElementById('lbl-flow-unit');
+            
+            if (fluid === 'steam') {
+                tempGroup.style.display = 'none';
+                lblFlow.innerText = "Vazão Disponível (Q) [kg/h]";
+            } else if (fluid === 'water') {
+                tempGroup.style.display = 'none';
+                lblFlow.innerText = "Vazão Disponível (Q) [m³/h]";
+            } else {
+                tempGroup.style.display = 'flex';
+                lblFlow.innerText = "Vazão Disponível (Q) [Nm³/h]";
+            }
         }
 
         function toggleFlowFields() {
             const mode = document.getElementById('cv-flow-avail').value;
-            const hasFlowArea = document.getElementById('inputs-has-flow');
-            const pipeFieldsArea = document.getElementById('inputs-pipe-fields');
-            const vInputGroup = document.getElementById('group-v-input');
+            const hasFlow = document.getElementById('inputs-has-flow');
+            const pipeFields = document.getElementById('inputs-pipe-fields');
+            const vInput = document.getElementById('group-v-input');
 
             if (mode === 'yes') {
-                hasFlowArea.style.display = 'grid';
-                pipeFieldsArea.style.display = 'none';
+                hasFlow.style.display = 'grid';
+                pipeFields.style.display = 'none';
+            } else if (mode === 'no') {
+                hasFlow.style.display = 'none';
+                pipeFields.style.display = 'grid';
+                vInput.style.display = 'flex';
             } else {
-                hasFlowArea.style.display = 'none';
-                pipeFieldsArea.style.display = 'grid';
-                vInputGroup.style.display = mode === 'no' ? 'flex' : 'none'; 
+                hasFlow.style.display = 'none';
+                pipeFields.style.display = 'grid';
+                vInput.style.display = 'none';
             }
         }
 
-        function adaptFluidUI() {
-            const fluid = document.getElementById('cv-fluid').value;
-            const lbl = document.getElementById('lbl-flow-unit');
-            const tempGroup = document.getElementById('group-temp');
-
-            if (fluid === 'water') {
-                lbl.innerText = "Vazão Disponível (Q) [m³/h]";
-                tempGroup.style.display = 'none';
-            } else if (fluid === 'steam') {
-                lbl.innerText = "Vazão Disponível (W) [kg/h]";
-                tempGroup.style.display = 'none';
-            } else { 
-                lbl.innerText = "Vazão Disponível (Qg) [Nm³/h]";
-                tempGroup.style.display = 'flex';
-            }
-            toggleFlowFields();
-        }
-
-        // ENGINE CÁLCULO DE CV
+        // 1. EXECUÇÃO DOS CÁLCULOS DE CV
         function executarCalculoCvPlanta() {
             try {
                 const fluid = document.getElementById('cv-fluid').value;
                 const mode = document.getElementById('cv-flow-avail').value;
-                const P1 = parseFloat(document.getElementById('cv-p1').value) || 0; 
-                const P2 = parseFloat(document.getElementById('cv-p2').value) || 0; 
-                const temp = parseFloat(document.getElementById('cv-temperature').value) || 25;
+                const p1 = parseFloat(document.getElementById('cv-p1').value);
+                const p2 = parseFloat(document.getElementById('cv-p2').value);
                 
-                if (P1 <= P2) {
-                    alert("A Pressão de Entrada (P1) precisa ser maior que a Pressão de Saída (P2).");
+                if (p1 <= p2 || p2 <= 0) {
+                    alert("A Pressão P1 deve ser maior que P2 e ambas maiores que zero.");
                     return;
                 }
 
-                let dP = P1 - P2;
-                let cv = 0;
-                let logText = "";
-                let Q_final = 0;
+                const dp = p1 - p2;
+                let q = 0;
 
-                if (mode === 'no' || mode === 'auto') {
-                    let velocity = mode === 'auto' ? FLUID_PROJECT_LIMITS[fluid].designVelocity : (parseFloat(document.getElementById('cv-v-input').value) || 0);
-                    if (mode === 'auto') logText += `⚠️ Velocidade de projeto aplicada: ${velocity} m/s.<br>`;
-
-                    const size = String(document.getElementById('cv-pipe-size').value).trim();
+                if (mode !== 'yes') {
+                    const size = document.getElementById('cv-pipe-size').value;
                     const mat = document.getElementById('cv-pipe-mat').value;
-                    const d_int = PIPE_DATABASE[mat][size];
-                    const area = (Math.PI * Math.pow(d_int, 2)) / 4; 
-                    let Q_linha_m3h = (velocity * area) * 3600; 
-
-                    if (fluid === 'water') Q_final = Q_linha_m3h;
-                    else if (fluid === 'steam') Q_final = Q_linha_m3h * (P1 * 0.55);
-                    else Q_final = Q_linha_m3h * (P1 / 1.01325) * (273.15 / (temp + 273.15));
+                    const di = PIPE_DATABASE[mat][size];
+                    const area = (Math.PI * Math.pow(di, 2)) / 4;
+                    let vel = parseFloat(document.getElementById('cv-v-input').value);
                     
-                    logText += `Vazão estimada de linha (${size}"): ${Q_final.toFixed(1)}<br>`;
+                    if (mode === 'auto') {
+                        vel = FLUID_PROJECT_LIMITS[fluid].designVelocity;
+                    }
+                    
+                    const qM3s = area * vel;
+                    q = qM3s * 3600; // Converte para m³/h ou equivalente base
                 } else {
-                    Q_final = parseFloat(document.getElementById('cv-q').value) || 0;
+                    q = parseFloat(document.getElementById('cv-q').value);
                 }
 
-                if (Q_final <= 0) {
-                    alert("A vazão deve ser maior que zero.");
-                    return;
-                }
-
+                let cv = 0;
                 if (fluid === 'water') {
-                    cv = (Q_final * 4.40287) / Math.sqrt(dP * 14.5038);
-                    logText += "Equação: Líquido Subcrítico (ISA-75.01)";
+                    cv = q / (1.17 * Math.sqrt(dp));
                 } else if (fluid === 'steam') {
-                    const W_lbh = Q_final * 2.20462;
-                    const P1_psi = P1 * 14.5038;
-                    if (dP >= 0.5 * P1) {
-                        cv = W_lbh / (1.82 * P1_psi);
-                        logText += "Regime: CRÍTICO / BLOQUEADO (Choked)";
-                    } else {
-                        cv = W_lbh / (2.1 * Math.sqrt((dP * 14.5038) * (P1_psi + (P2 * 14.5038))));
-                        logText += "Regime: Subcrítico";
-                    }
+                    cv = q / (12 * Math.sqrt(dp * p2));
                 } else {
-                    const T_rankine = ((temp * 9/5) + 32) + 459.67;
-                    const P1_psi = P1 * 14.5038;
-                    const Qg_scfh = Q_final * 35.3147;
-                    const G_gas = FLUID_PROJECT_LIMITS[fluid].genericG;
-
-                    if (dP >= 0.5 * P1) {
-                        cv = Qg_scfh / (0.471 * P1_psi * Math.sqrt(1 / (G_gas * T_rankine)));
-                        logText += "Regime: Crítico Gasoso";
-                    } else {
-                        cv = (Qg_scfh * Math.sqrt(G_gas * T_rankine)) / (1360 * Math.sqrt((dP * 14.5038) * P1_psi));
-                        logText += "Regime: Subcrítico Gasoso";
-                    }
+                    const temp = parseFloat(document.getElementById('cv-temperature').value) + 273.15;
+                    const sg = FLUID_PROJECT_LIMITS[fluid].genericG;
+                    cv = (q * Math.sqrt(sg * temp)) / (295 * Math.sqrt(dp * p2));
                 }
 
-                const textResult = document.getElementById('val-cv-avancado');
-                if (isNaN(cv) || !isFinite(cv) || cv <= 0) {
-                    textResult.innerHTML = `<span style="color:#ef4444;">Erro de Parâmetros</span>`;
-                } else {
-                    textResult.innerHTML = `Cv Requerido: ${cv.toFixed(2)}<br><small style="color:var(--text-muted);">${logText}</small>`;
-                }
-                document.getElementById('res-cv-avancado').classList.add('show');
-            } catch (err) { alert("Falha no cálculo de CV."); }
+                showResult('res-cv-avancado', 'val-cv-avancado', `Cv Calculado: <strong>${cv.toFixed(3)}</strong><br><small style='color:var(--text-muted)'>Vazão considerada de operação: ${q.toFixed(2)} unidades/h</small>`);
+            } catch(e) { alert("Verifique se inseriu dados numéricos válidos."); }
         }
 
-        // VELOCIDADE POR CV
         function calcularVelocidadePorCvPlanta() {
             try {
                 const fluid = document.getElementById('vcv-fluid').value;
-                const cv = parseFloat(document.getElementById('vcv-cv').value) || 0;
-                const P1 = parseFloat(document.getElementById('vcv-p1').value) || 0;
-                const P2 = parseFloat(document.getElementById('vcv-p2').value) || 0;
-                const size = String(document.getElementById('vcv-pipe-size').value).trim();
+                const cv = parseFloat(document.getElementById('vcv-cv').value);
+                const p1 = parseFloat(document.getElementById('vcv-p1').value);
+                const p2 = parseFloat(document.getElementById('vcv-p2').value);
+                const size = document.getElementById('vcv-pipe-size').value;
                 const mat = document.getElementById('vcv-pipe-mat').value;
 
-                if (P1 <= P2 || cv <= 0) { alert("Dados inválidos."); return; }
+                if (p1 <= p2 || cv <= 0) { alert("Dados inconsistentes de pressões ou Cv."); return; }
+                const dp = p1 - p2;
+                let q = 0;
 
-                const dP_psi = (P1 - P2) * 14.5038;
-                const P1_psi = P1 * 14.5038;
-                let Q_m3h_linha = 0;
-
-                if (fluid === 'water') Q_m3h_linha = (cv * Math.sqrt(dP_psi)) / 4.40287;
-                else if (fluid === 'steam') {
-                    let W_lbh = dP_psi >= (0.5 * P1_psi) ? (cv * 1.82 * P1_psi) : (cv * 2.1 * Math.sqrt(dP_psi * (P1_psi + (P2 * 14.5038))));
-                    Q_m3h_linha = (W_lbh / 2.20462) / (P1 * 0.55);
+                if (fluid === 'water') {
+                    q = cv * 1.17 * Math.sqrt(dp);
+                } else if (fluid === 'steam') {
+                    q = cv * 12 * Math.sqrt(dp * p2);
                 } else {
-                    const G_gas = FLUID_PROJECT_LIMITS[fluid].genericG;
-                    let Qg_scfh = dP_psi >= (0.5 * P1_psi) ? (cv * 0.471 * P1_psi * Math.sqrt(1 / (G_gas * 530))) : ((cv * 1360 * Math.sqrt(dP_psi * P1_psi)) / Math.sqrt(G_gas * 530));
-                    Q_m3h_linha = (Qg_scfh / 35.3147) * (1.01325 / P1) * (298.15 / 273.15);
+                    const sg = FLUID_PROJECT_LIMITS[fluid].genericG;
+                    q = (cv * 295 * Math.sqrt(dp * p2)) / Math.sqrt(sg * 298.15);
                 }
 
-                const velocity = (Q_m3h_linha / 3600) / ((Math.PI * Math.pow(PIPE_DATABASE[mat][size], 2)) / 4);
-                exibirResultado('res-vcv', 'val-vcv', `${velocity.toFixed(2)} m/s<br><small style="color:var(--text-muted);">Vazão Volumétrica: ${Q_m3h_linha.toFixed(1)} m³/h</small>`);
-            } catch (err) { console.error(err); }
+                const di = PIPE_DATABASE[mat][size];
+                const area = (Math.PI * Math.pow(di, 2)) / 4;
+                const qM3s = q / 3600;
+                const vel = qM3s / area;
+
+                showResult('res-vcv', 'val-vcv', `Velocidade Estimada na Linha: <strong>${vel.toFixed(2)} m/s</strong>`);
+            } catch(e) { alert("Erro ao estimar velocidade."); }
         }
 
-        // FATOR K CORIOLIS
+        // 2. CORIOLIS
         function calcularAjusteFatorK() {
-            const mMedidor = parseFloat(document.getElementById('coriolis-m-medidor').value) || 0;
-            const mBalanca = parseFloat(document.getElementById('coriolis-m-balanca').value) || 0;
-            const kAtual = parseFloat(document.getElementById('coriolis-k-atual').value) || 0;
+            const mMed = parseFloat(document.getElementById('coriolis-m-medidor').value);
+            const mBal = parseFloat(document.getElementById('coriolis-m-balanca').value);
+            const kAtu = parseFloat(document.getElementById('coriolis-k-atual').value);
 
-            if (mMedidor <= 0 || mBalanca <= 0 || kAtual <= 0) { alert("Insira valores maiores que zero."); return; }
+            if (!mMed || !mBal || !kAtu) { alert("Preencha todos os campos."); return; }
+            const erroPct = ((mMed - mBal) / mBal) * 100;
+            const novoK = kAtu * (mBal / mMed);
 
-            const erroPct = ((mMedidor - mBalanca) / mBalanca) * 100;
-            const kNovo = kAtual * (mBalanca / mMedidor);
-            let cor = Math.abs(erroPct) > 1.0 ? "#ef4444" : (Math.abs(erroPct) > 0.5 ? "#f59e0b" : "#10b981");
-
-            exibirResultado('res-coriolis', 'val-coriolis', `
-                <span style="color: ${cor}; font-size: 1.3rem;">Erro: ${erroPct.toFixed(3)} %</span><br>
-                <div style="margin-top:10px;">👉 <strong>Novo Fator K: <span style="color: #38bdf8;">${kNovo.toFixed(5)}</span></strong></div>
-            `);
+            showResult('res-coriolis', 'val-coriolis', `Erro Relativo Atual: <strong>${erroPct.toFixed(3)}%</strong><br>Novo Fator K Proposto: <strong style='color:var(--accent)'>${novoK.toFixed(5)}</strong>`);
         }
 
-        // LINEARIZAÇÃO 
+        // 3. LINEARIZAÇÃO 4-20mA
         function calcularMaParaEng() {
-            try {
-                const lrv = parseFloat(document.getElementById('lin-lrv').value);
-                const urv = parseFloat(document.getElementById('lin-urv').value);
-                const ma = parseFloat(document.getElementById('lin-ma').value);
-                const unit = document.getElementById('lin-unit').value || "";
+            const lrv = parseFloat(document.getElementById('lin-lrv').value);
+            const urv = parseFloat(document.getElementById('lin-urv').value);
+            const ma = parseFloat(document.getElementById('lin-ma').value);
+            const unit = document.getElementById('lin-unit').value;
 
-                if (isNaN(lrv) || isNaN(urv) || isNaN(ma)) { alert("Preencha os campos."); return; }
-                if (lrv === urv) { alert("Ranges idênticos detectados."); return; }
-
-                const pct = ((ma - 4) / 16) * 100;
-                const valEng = lrv + ((ma - 4) / 16) * (urv - lrv);
-
-                let alertaSubmassa = ma < 4.0 ? `<br><span style="color:#ef4444; font-size:0.85rem;">⚠️ Alerta: Subescala / Cabo Partido</span>` : "";
-                let alertaSobremassa = ma > 20.0 ? `<br><span style="color:#f59e0b; font-size:0.85rem;">⚠️ Alerta: Saturação de Sinal</span>` : "";
-
-                const htmlRes = `<div style="color: #38bdf8; font-size: 1.4rem; font-weight: bold;">${valEng.toFixed(3)} ${unit}</div><div style="margin-top: 5px;">Sinal: <strong>${pct.toFixed(2)}%</strong></div>${alertaSubmassa}${alertaSobremassa}`;
-                exibirResultado('res-linear', 'val-linear', htmlRes);
-            } catch (err) { console.error(err); }
+            if (ma < 4 || ma > 20) { alert("Aviso: Corrente fora da faixa normal (4-20mA)."); }
+            const valor = lrv + ((ma - 4) / 16) * (urv - lrv);
+            showResult('res-linear', 'val-linear', `Sinal Corresponde a: <strong>${valor.toFixed(3)} ${unit}</strong>`);
         }
 
         function calcularEngParaMa() {
-            try {
-                const lrv = parseFloat(document.getElementById('lin-lrv').value);
-                const urv = parseFloat(document.getElementById('lin-urv').value);
-                const engVal = parseFloat(document.getElementById('lin-eng-input').value);
+            const lrv = parseFloat(document.getElementById('lin-lrv').value);
+            const urv = parseFloat(document.getElementById('lin-urv').value);
+            const eng = parseFloat(document.getElementById('lin-eng-input').value);
 
-                if (isNaN(lrv) || isNaN(urv) || isNaN(engVal)) { alert("Preencha os campos."); return; }
-                if (lrv === urv) { alert("Ranges idênticos."); return; }
-
-                const pct = ((engVal - lrv) / (urv - lrv)) * 100;
-                const maRes = 4 + ((engVal - lrv) / (urv - lrv)) * 16;
-                let condicionalAlerta = (maRes < 4 || maRes > 20) ? `<br><span style="color:#f59e0b; font-size:0.85rem;">⚠️ Fora do range configurado!</span>` : "";
-
-                const htmlRes = `<div style="color: #10b981; font-size: 1.4rem; font-weight: bold;">${maRes.toFixed(4)} mA</div><div style="margin-top: 5px;">Span: <strong>${pct.toFixed(2)}%</strong></div>${condicionalAlerta}`;
-                exibirResultado('res-linear', 'val-linear', htmlRes);
-            } catch (err) { console.error(err); }
+            const ma = 4 + ((eng - lrv) / (urv - lrv)) * 16;
+            showResult('res-linear', 'val-linear', `Corrente Estimada na Malha: <strong>${ma.toFixed(3)} mA</strong>`);
         }
 
-        // PT100
+        // 4. PT100 / PT1000
         function calcularTemperaturaPt() {
-            const tipo = parseFloat(document.getElementById('pt-type').value);
+            const type = parseFloat(document.getElementById('pt-type').value);
             const ohms = parseFloat(document.getElementById('pt-ohms').value);
-            const A = 3.9083e-3; const B = -5.775e-7;
-            const delta = (A * A) - (4 * B * (1 - (ohms / tipo)));
-            if (delta < 0 || isNaN(ohms)) return;
-            const t = (-A + Math.sqrt(delta)) / (2 * B);
-            exibirResultado('res-pt', 'val-pt', `${t.toFixed(2)} °C`);
+            const R0 = type;
+
+            const A = 3.9083e-3;
+            const B = -5.775e-7;
+
+            if (ohms >= R0) {
+                const temp = (-A + Math.sqrt(Math.pow(A, 2) - 4 * B * (1 - ohms / R0))) / (2 * B);
+                showResult('res-pt', 'val-pt', `Temperatura Calculada: <strong>${temp.toFixed(2)} °C</strong>`);
+            } else {
+                // Aproximação linear simplificada para temperaturas negativas
+                const temp = (ohms - R0) / (R0 * A);
+                showResult('res-pt', 'val-pt', `Temperatura Aproximada (T < 0°C): <strong>${temp.toFixed(2)} °C</strong>`);
+            }
         }
 
-        // INCERTEZA
+        // 5. INCERTEZA E ERRO %
         function calcularErroCalibracao() {
             const ref = parseFloat(document.getElementById('cal-ref').value);
             const read = parseFloat(document.getElementById('cal-read').value);
             const span = parseFloat(document.getElementById('cal-span').value);
-            const errAbs = read - ref;
-            exibirResultado('res-cal', 'val-cal', `Erro Abs: ${errAbs.toFixed(3)}<br>Erro: ${((errAbs / span) * 100).toFixed(3)} % do Span`);
+
+            const erroAbs = read - ref;
+            const erroSpan = (erroAbs / span) * 100;
+
+            showResult('res-cal', 'val-cal', `Erro Absoluto: <strong>${erroAbs.toFixed(3)}</strong><br>Erro em % do Span: <strong>${erroSpan.toFixed(3)}%</strong>`);
         }
 
-        // NÍVEL
+        // 6. RANGE DE NÍVEL
         function togglePressurizado() {
-            const d = document.getElementById('tank-type').value === 'press' ? 'flex' : 'none';
-            document.getElementById('capillary-density-group').style.display = d;
-            document.getElementById('capillary-height-group').style.display = d;
+            const type = document.getElementById('tank-type').value;
+            document.getElementById('capillary-density-group').style.display = type === 'press' ? 'flex' : 'none';
+            document.getElementById('capillary-height-group').style.display = type === 'press' ? 'flex' : 'none';
         }
 
         function calcularRangeNivel() {
             const type = document.getElementById('tank-type').value;
             const H = parseFloat(document.getElementById('lvl-h').value);
-            const sgFluido = parseFloat(document.getElementById('lvl-sg').value);
-            let lrv = 0, urv = H * sgFluido * 0.0980665;
+            const sg = parseFloat(document.getElementById('lvl-sg').value);
+            const g = 0.0980665; // bar por m de H2O
+
+            let lrv = 0;
+            let urv = H * sg * g;
 
             if (type === 'press') {
-                lrv = - (parseFloat(document.getElementById('lvl-h-cap').value) * parseFloat(document.getElementById('lvl-sg-cap').value) * 0.0980665);
-                urv = lrv + (H * sgFluido * 0.0980665);
+                const hCap = parseFloat(document.getElementById('lvl-h-cap').value);
+                const sgCap = parseFloat(document.getElementById('lvl-sg-cap').value);
+                lrv = - (hCap * sgCap * g);
+                urv = lrv + (H * sg * g);
             }
-            exibirResultado('res-level', 'val-level', `LRV: ${lrv.toFixed(3)} bar (${(lrv*10197.16).toFixed(1)} mmH₂O)<br>URV: ${urv.toFixed(3)} bar (${(urv*10197.16).toFixed(1)} mmH₂O)`);
+
+            showResult('res-level', 'val-level', `LRV (4mA / 0%): <strong>${lrv.toFixed(4)} bar</strong><br>URV (20mA / 100%): <strong>${urv.toFixed(4)} bar</strong>`);
         }
 
-        // VALIDAÇÃO DE CERTIFICADOS METROLÓGICOS
+        // 7. VALIDAÇÃO DE CERTIFICADOS
         function validarCertificadoMetrologico() {
-            try {
-                const erroMax = parseFloat(document.getElementById('val-erro-max').value);
-                const incerteza = parseFloat(document.getElementById('val-incerteza').value);
-                const erroAdm = parseFloat(document.getElementById('val-erro-adm').value);
+            const erroMax = parseFloat(document.getElementById('val-erro-max').value);
+            const incerteza = parseFloat(document.getElementById('val-incerteza').value);
+            const erroAdm = parseFloat(document.getElementById('val-erro-adm').value);
 
-                if (isNaN(erroMax) || isNaN(incerteza) || isNaN(erroAdm)) {
-                    alert("Por favor, preencha todos os campos numéricos para prosseguir.");
-                    return;
-                }
-                if (erroAdm <= 0) { alert("O Erro Máximo Admissível deve ser maior que zero."); return; }
+            const etq = Math.sqrt(Math.pow(erroMax, 2) + Math.pow(incerteza, 2));
+            const aprovado = etq <= erroAdm;
 
-                const etq = Math.sqrt(Math.pow(erroMax, 2) + Math.pow(incerteza, 2));
-                const aprovado = etq <= erroAdm;
-                const statusTexto = aprovado ? "APROVADO" : "NÃO APROVADO";
-                const statusCor = aprovado ? "#10b981" : "#ef4444"; 
+            const html = `
+                <div style="margin-bottom:10px;">Calculado ε TQ: <strong>${etq.toFixed(4)}</strong></div>
+                <div style="background-color:${aprovado ? '#10b981' : '#ef4444'}; color:#0f172a; padding:10px; border-radius:4px; text-align:center; font-size:1.3rem; font-weight:bold;">
+                    ${aprovado ? 'APROVADO' : 'NÃO APROVADO'}
+                </div>
+            `;
+            showResult('res-validation', 'val-validation-box', html);
+        }
 
-                const htmlResultado = `
-                    <div style="font-size: 1.1rem; margin-bottom: 10px;">Calculado ε TQ: <strong>${etq.toFixed(4)}</strong></div>
-                    <div style="background-color: ${statusCor}; color: #0f172a; padding: 10px; border-radius: 4px; text-align: center; font-size: 1.5rem; font-weight: bold;">${statusTexto}</div>
-                    <small style="color: var(--text-muted); display: block; margin-top: 10px;">* Critério: ε TQ = √(ε² + Im²) ➔ Deve ser ≤ ε ADM para conformidade na malha.</small>
+        // 8. ALMOXARIFADO SAP
+        function renderizarAlmoxarifado(dados) {
+            const body = document.getElementById('stock-table-body');
+            body.innerHTML = '';
+            
+            dados.forEach(item => {
+                const sapCode = item.substring(0, 12);
+                const desc = item.substring(12);
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="code-badge">${sapCode}</span></td>
+                    <td>${desc}</td>
                 `;
-                exibirResultado('res-validation', 'val-validation-box', htmlResultado);
-            } catch (err) { alert("Erro ao validar certificado."); }
+                body.appendChild(tr);
+            });
+            
+            document.getElementById('stock-counter').innerText = `${dados.length} materiais encontrados baseados no filtro.`;
         }
 
-        function exibirResultado(boxId, valueId, texto) {
-            document.getElementById(valueId).innerHTML = texto;
-            document.getElementById(boxId).classList.add('show');
+        function filtrarAlmoxarifado() {
+            const query = document.getElementById('stock-search-input').value.toUpperCase();
+            const filtrados = RAW_STOCK_DATA.filter(item => item.toUpperCase().includes(query));
+            renderizarAlmoxarifado(filtrados);
         }
+
+        // Inicialização do App
+        window.onload = function() {
+            adaptFluidUI();
+            renderizarAlmoxarifado(RAW_STOCK_DATA);
+        };
     </script>
 </body>
 </html>
