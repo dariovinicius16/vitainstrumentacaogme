@@ -1,0 +1,17 @@
+O que o site contará: 
+
+- Dimensionamento de CV em válvulas de controle ou redutoras; 
+
+- Ajuste de Fator K em medidores de vazão coriólis Mássico; 
+
+- Linearização 4 a 20mA para qualquer unidade de engenharia; 
+
+- Conversão direta de resistência para temperatura em pt100, pt1000 e tabela pt100; 
+
+- Cálculo de incerteza e erro % em calibrações.
+
+- Dimensionar range para transmissor de pressão para marcar nível em tanques abertos e pressurizados
+
+- Validação do certificado de calibração. Um calculo que eu vou dar os dados. 
+
+
