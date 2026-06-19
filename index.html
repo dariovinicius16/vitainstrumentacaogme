@@ -540,8 +540,17 @@
                         </select>
                     </div>
                 </div>
+
+                <!--MARGEM DE SEGURANÇA 20% A MAIS NO CV-->
+            <div class="grid-inputs">
+                    <div class="input-group">
+                        <label>Margem de Segurança (%)</label>
+                        <input type="number" id="cv-margin" value="20" step="1">
+                    </div>
+            </div>
+                <!--MARGEM DE SEGURANÇA 20% A MAIS NO CV-->
+
                 <button class="calc-btn" onclick="calcularVelocidadePorCvPlanta()">Calcular Velocidade</button>
-                
                 <div id="res-vcv" class="result-box">
                     <div class="result-title">Velocidade Calculada na Linha</div>
                     <div class="result-value" id="val-vcv">-</div>
@@ -922,7 +931,7 @@
             "400000093553MANOMETRO AI SAID TRAS 40MM ROS 1/8 0-10 BAR",
             "400000084769MANOMETRO AI SAID TRAS 40MM ROS 1/8 0-16 BAR",
             "400000020614MANOMETRO AN C/SELO SANIT DN 100 0 60BAR - ENVASE 01 MARGARINA",
-            "40000109798MANOMETRO AN MENOS 1A10BAR DN 100 2POL FLANGE FILTROS BRANQUEAMENTO",
+            "400000109798MANOMETRO AN MENOS 1A10BAR DN 100 2POL FLANGE FILTROS BRANQUEAMENTO",
             "400000020616MANOMETRO ANALOG C/SELO DIAF AI DN 100 ROSCA 1/2\" NPT -1 A 10 BAR - ABC INSTRUMENTAÇÃO",
             "400000031556MANOMETRO BOUR SIMP 0 5000MMCA/200C",
             "400000072663MANOMETRO DN115 -1 A 10 BAR CX/ANEL BAION WIKA SEM SELO 1/2\" - SAÍDA TRASEIRA",
@@ -1151,11 +1160,6 @@
             renderizarTabelaEstoque(parsedWarehouseItems);
         }
 
-
-
-
-
-
         function renderizarTabelaEstoque(listaItens) {
             const tbody = document.getElementById('stock-table-body');
             const counter = document.getElementById('stock-counter');
@@ -1245,86 +1249,104 @@
             toggleFlowFields();
         }
 
-        // ENGINE CÁLCULO DE CV
-        function executarCalculoCvPlanta() {
-            try {
-                const fluid = document.getElementById('cv-fluid').value;
-                const mode = document.getElementById('cv-flow-avail').value;
-                const P1 = parseFloat(document.getElementById('cv-p1').value) || 0; 
-                const P2 = parseFloat(document.getElementById('cv-p2').value) || 0; 
-                const temp = parseFloat(document.getElementById('cv-temperature').value) || 25;
-                
-                if (P1 <= P2) {
-                    alert("A Pressão de Entrada (P1) precisa ser maior que a Pressão de Saída (P2).");
-                    return;
-                }
-
-                let dP = P1 - P2;
-                let cv = 0;
-                let logText = "";
-                let Q_final = 0;
-
-                if (mode === 'no' || mode === 'auto') {
-                    let velocity = mode === 'auto' ? FLUID_PROJECT_LIMITS[fluid].designVelocity : (parseFloat(document.getElementById('cv-v-input').value) || 0);
-                    if (mode === 'auto') logText += `⚠️ Velocidade de projeto aplicada: ${velocity} m/s.<br>`;
-
-                    const size = String(document.getElementById('cv-pipe-size').value).trim();
-                    const mat = document.getElementById('cv-pipe-mat').value;
-                    const d_int = PIPE_DATABASE[mat][size];
-                    const area = (Math.PI * Math.pow(d_int, 2)) / 4; 
-                    let Q_linha_m3h = (velocity * area) * 3600; 
-
-                    if (fluid === 'water') Q_final = Q_linha_m3h;
-                    else if (fluid === 'steam') Q_final = Q_linha_m3h * (P1 * 0.55);
-                    else Q_final = Q_linha_m3h * (P1 / 1.01325) * (273.15 / (temp + 273.15));
-                    
-                    logText += `Vazão estimada de linha (${size}"): ${Q_final.toFixed(1)}<br>`;
-                } else {
-                    Q_final = parseFloat(document.getElementById('cv-q').value) || 0;
-                }
-
-                if (Q_final <= 0) {
-                    alert("A vazão deve ser maior que zero.");
-                    return;
-                }
-
-                if (fluid === 'water') {
-                    cv = (Q_final * 4.40287) / Math.sqrt(dP * 14.5038);
-                    logText += "Equação: Líquido Subcrítico (ISA-75.01)";
-                } else if (fluid === 'steam') {
-                    const W_lbh = Q_final * 2.20462;
-                    const P1_psi = P1 * 14.5038;
-                    if (dP >= 0.5 * P1) {
-                        cv = W_lbh / (1.82 * P1_psi);
-                        logText += "Regime: CRÍTICO / BLOQUEADO (Choked)";
-                    } else {
-                        cv = W_lbh / (2.1 * Math.sqrt((dP * 14.5038) * (P1_psi + (P2 * 14.5038))));
-                        logText += "Regime: Subcrítico";
-                    }
-                } else {
-                    const T_rankine = ((temp * 9/5) + 32) + 459.67;
-                    const P1_psi = P1 * 14.5038;
-                    const Qg_scfh = Q_final * 35.3147;
-                    const G_gas = FLUID_PROJECT_LIMITS[fluid].genericG;
-
-                    if (dP >= 0.5 * P1) {
-                        cv = Qg_scfh / (0.471 * P1_psi * Math.sqrt(1 / (G_gas * T_rankine)));
-                        logText += "Regime: Crítico Gasoso";
-                    } else {
-                        cv = (Qg_scfh * Math.sqrt(G_gas * T_rankine)) / (1360 * Math.sqrt((dP * 14.5038) * P1_psi));
-                        logText += "Regime: Subcrítico Gasoso";
-                    }
-                }
-
-                const textResult = document.getElementById('val-cv-avancado');
-                if (isNaN(cv) || !isFinite(cv) || cv <= 0) {
-                    textResult.innerHTML = `<span style="color:#ef4444;">Erro de Parâmetros</span>`;
-                } else {
-                    textResult.innerHTML = `Cv Requerido: ${cv.toFixed(2)}<br><small style="color:var(--text-muted);">${logText}</small>`;
-                }
-                document.getElementById('res-cv-avancado').classList.add('show');
-            } catch (err) { alert("Falha no cálculo de CV."); }
+        // CÁLCULO DE CV
+function executarCalculoCvPlanta() {
+    try {
+        const fluid = document.getElementById('cv-fluid').value;
+        const mode = document.getElementById('cv-flow-avail').value;
+        const P1 = parseFloat(document.getElementById('cv-p1').value) || 0; 
+        const P2 = parseFloat(document.getElementById('cv-p2').value) || 0; 
+        const temp = parseFloat(document.getElementById('cv-temperature').value) || 25;
+        const margin = (parseFloat(document.getElementById('cv-margin').value) || 0) / 100;
+        const size = parseFloat(document.getElementById('cv-pipe-size').value);
+        
+        if (P1 <= P2) {
+            alert("A Pressão de Entrada (P1) precisa ser maior que a Pressão de Saída (P2).");
+            return;
         }
+
+        let dP = P1 - P2;
+        let cv = 0;
+        let logText = "";
+        let Q_final = 0;
+        let velocityUsed = 0; // Nova variável para rastrear a velocidade
+
+        // --- Cálculo da Vazão ---
+        if (mode === 'no' || mode === 'auto') {
+            velocityUsed = mode === 'auto' ? FLUID_PROJECT_LIMITS[fluid].designVelocity : (parseFloat(document.getElementById('cv-v-input').value) || 0);
+            const mat = document.getElementById('cv-pipe-mat').value;
+            const d_int = PIPE_DATABASE[mat][size];
+            const area = (Math.PI * Math.pow(d_int, 2)) / 4; 
+            let Q_linha_m3h = (velocityUsed * area) * 3600; 
+
+            if (fluid === 'water') Q_final = Q_linha_m3h;
+            else if (fluid === 'steam') Q_final = Q_linha_m3h * (P1 * 0.55);
+            else Q_final = Q_linha_m3h * (P1 / 1.01325) * (273.15 / (temp + 273.15));
+            
+            logText += `Vazão estimada (${size}"): ${Q_final.toFixed(1)} m³/h<br>`;
+        } else {
+            Q_final = parseFloat(document.getElementById('cv-q').value) || 0;
+        }
+
+        if (Q_final <= 0) {
+            alert("A vazão deve ser maior que zero.");
+            return;
+        }
+
+        // --- Cálculo do Cv e Definição do Regime ---
+        if (fluid === 'water') {
+            cv = (Q_final * 4.40287) / Math.sqrt(dP * 14.5038);
+            logText += "Regime: Líquido Subcrítico (ISA-75.01)";
+        } else if (fluid === 'steam') {
+            const W_lbh = Q_final * 2.20462;
+            const P1_psi = P1 * 14.5038;
+            if (dP >= 0.5 * P1) {
+                cv = W_lbh / (1.82 * P1_psi);
+                logText += "Regime: CRÍTICO / BLOQUEADO (Choked)";
+            } else {
+                cv = W_lbh / (2.1 * Math.sqrt((dP * 14.5038) * (P1_psi + (P2 * 14.5038))));
+                logText += "Regime: Subcrítico";
+            }
+        } else {
+            const T_rankine = ((temp * 9/5) + 32) + 459.67;
+            const P1_psi = P1 * 14.5038;
+            const Qg_scfh = Q_final * 35.3147;
+            const G_gas = FLUID_PROJECT_LIMITS[fluid].genericG;
+            if (dP >= 0.5 * P1) {
+                cv = Qg_scfh / (0.471 * P1_psi * Math.sqrt(1 / (G_gas * T_rankine)));
+                logText += "Regime: Crítico Gasoso";
+            } else {
+                cv = (Qg_scfh * Math.sqrt(G_gas * T_rankine)) / (1360 * Math.sqrt((dP * 14.5038) * P1_psi));
+                logText += "Regime: Subcrítico Gasoso";
+            }
+        }
+
+        // --- Aplicação da Margem e Abertura Operacional ---
+        const cvComMargem = cv * (1 + margin);
+        const aberturaOperacional = (size <= 2.5) ? 0.55 : 0.70;
+        const cvMaxTrim = cvComMargem / aberturaOperacional;
+        const porcExibicao = (aberturaOperacional * 100).toFixed(0);
+
+        // --- Exibição do Resultado ---
+        const textResult = document.getElementById('val-cv-avancado');
+        if (isNaN(cv) || !isFinite(cv) || cv <= 0) {
+            textResult.innerHTML = `<span style="color:#ef4444;">Erro de Parâmetros</span>`;
+        } else {
+            // Adiciona a velocidade ao resumo se o modo não for 'yes' (que é quando o usuário entra com a vazão direto)
+            let velInfo = (mode !== 'yes' && velocityUsed > 0) ? `<strong>Velocidade Aplicada:</strong> ${velocityUsed.toFixed(1)} m/s<br>` : "";
+            
+            textResult.innerHTML = `
+                ${velInfo}
+                <strong>Cv Requerido (Processo):</strong> ${cv.toFixed(2)}<br>
+                <strong>Cv c/ Margem (${(margin * 100).toFixed(0)}%):</strong> ${cvComMargem.toFixed(2)}<br>
+                <strong>Cv Máx. Trim Recomendado:</strong> ${cvMaxTrim.toFixed(2)} 
+                <small>(Base: ${porcExibicao}% abertura)</small>
+                <br><small style="color:var(--text-muted);">${logText}</small>
+            `;
+        }
+        document.getElementById('res-cv-avancado').classList.add('show');
+    } catch (err) { alert("Falha no cálculo de CV."); }
+}
 
         // VELOCIDADE POR CV
         function calcularVelocidadePorCvPlanta() {
